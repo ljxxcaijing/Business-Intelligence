@@ -1,0 +1,54 @@
+---
+title: ''
+output:
+  html_document: default
+  pdf_document: default
+---
+<p align="center"><font size="8">2017BIHomework6</font></p>
+<p align="center"><font size="4">Cai Jing</font></p>
+
+### 聚类分析
+```{r}
+library(readr)
+data_weather0 <- read_csv("~/Desktop/Business Intelligence/2017BIHW6/data_weather0.csv")
+```
+
+####(1)最长距离法
+```{r}
+complete <- hclust(dist(data_weather0[2:5]),"complete")
+plot(complete)
+```
+
+####(2)均值法
+```{r}
+average <- hclust(dist(data_weather0[2:5]),"average")
+plot(average)
+```
+
+####(3)重心法
+```{r}
+centroid <- hclust(dist(data_weather0[2:5]),"centroid")
+plot(centroid)
+```
+
+####(4)Ward 法
+```{r}
+ward <- hclust(dist(data_weather0[2:5]),"ward.D2")
+plot(ward)
+```
+
+### 绘图
+```{r}
+# 导入数据
+setwd("/Users/caihourong/Desktop/Business\ Intelligence")
+rt <- read.table("CodParasite.txt",head=TRUE)
+```
+#### (1)绘制质量 ‘Weight’ 和长度 ‘Length’ 的散点图
+```{r}
+plot(rt$Length,rt$Weight)
+```
+#### (2)按地域分类,绘制寄生虫强度'Intensity'与其患病率的'Cleveland'散点图
+```{r}
+
+```
+

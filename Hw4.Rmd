@@ -1,0 +1,117 @@
+---
+title: ''
+output:
+  html_document: default
+  pdf_document: default
+---
+<p align="center"><font size="8">2017BIHomework4</font></p>
+<p align="center"><font size="4">Cai Jing</font></p>
+
+### 1. 循环
+```{r}
+find_root <- function(x){
+    if(x<0){ # x为负数时报错并要求重新输入
+        print("Input<0! Try Again!")
+    }
+    else if(x<1){ # 0<x<1时，二分法在[x,1]逼近
+        low <- x
+        high <- 1
+        root <- (low + high)/2.0 # 取中值
+        counter <- 1 # 计数器counter
+        while (abs(root^2 - x) > 0.001){ # 若不满足精确性条件，则继续循环
+            if (root ^ 2 < x){
+                low = root
+            }else{
+                high = root
+            }
+            root = (low + high)/2.0
+            counter <- counter + 1 
+        }
+        result <-c("尝试次数：",counter,"根：",root)
+        return(result)
+    }else if(x>=1){ # x>=1时，二分法在[1,x]逼近
+        low <- 1
+        high <- x
+        root <- (low + high)/2.0
+        counter <- 1 
+        while (abs(root^2 - x) > 0.001){ 
+            if (root ^ 2 < x){
+                low = root
+            }else{
+                high = root
+            }
+            root = (low + high)/2.0
+            counter <- counter + 1
+        }
+        result <-c("尝试次数：",counter,"根：",root)
+        return(result)
+    }
+}
+```
+
+```{r}
+find_root(0)
+find_root(0.5)
+find_root(1)
+find_root(567)
+find_root(-5)
+```
+
+### 2. 递归
+```{r}
+recursion <- function(a,b) {
+     if(b == 0)
+         f <- 1 # 当b为零的时候输出为1
+     else
+         f <- a ^ b
+     return(f) # 输出结果
+}
+```
+
+```{r}
+recursion(5,0)
+recursion(5,3)
+recursion(-3,3)
+```
+
+### 3. 判断
+```{r}
+# 对正整数n，如果用2到sqrt(n)之间的所有整数去除，均无法整除，则n为素数。
+is_prime <- function(n) {
+    if(n<=1)
+        return(FALSE) # 负数或者1不是素数
+    else if (n==2) # 2是特殊的素数
+        return(TRUE)
+    else
+        for (i in 2:floor((sqrt(n))+1)){ # floor()向下取整
+            if(n %% i == 0)
+                return(FALSE)}
+    return(TRUE)
+}
+```
+
+```{r}
+is_prime(-10)
+is_prime(0)
+is_prime(1)
+is_prime(2)
+is_prime(3)
+is_prime(4)
+is_prime(1967)
+```
+
+
+### 4. 函数调用
+```{r}
+find_prime <- function(x) {
+   result <- c()
+   for (n in 1:x){
+        if(is_prime(n)==TRUE) # 用is_prime函数判断是素数，就输出
+            result <- c(result,n)
+   }
+   return(result)
+}
+```
+```{r}
+find_prime(31)
+```
