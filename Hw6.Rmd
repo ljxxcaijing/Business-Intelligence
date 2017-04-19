@@ -7,48 +7,54 @@ output:
 <p align="center"><font size="8">2017BIHomework6</font></p>
 <p align="center"><font size="4">Cai Jing</font></p>
 
-### 聚类分析
+
+###### Set my work space
 ```{r}
+setwd("/Users/caihourong/Desktop/Business Intelligence")
+```
+
+#### 聚类分析
+```{r,results="hide"}
+# 导入数据
 library(readr)
 data_weather0 <- read_csv("~/Desktop/Business Intelligence/2017BIHW6/data_weather0.csv")
 ```
 
-####(1)最长距离法
+#####(1)最长距离法
 ```{r}
 complete <- hclust(dist(data_weather0[2:5]),"complete")
 plot(complete)
 ```
 
-####(2)均值法
+#####(2)均值法
 ```{r}
 average <- hclust(dist(data_weather0[2:5]),"average")
 plot(average)
 ```
 
-####(3)重心法
+#####(3)重心法
 ```{r}
 centroid <- hclust(dist(data_weather0[2:5]),"centroid")
 plot(centroid)
 ```
 
-####(4)Ward 法
+#####(4)Ward 法
 ```{r}
 ward <- hclust(dist(data_weather0[2:5]),"ward.D2")
 plot(ward)
 ```
 
-### 绘图
+#### 绘图
 ```{r}
 # 导入数据
 setwd("/Users/caihourong/Desktop/Business\ Intelligence")
 rt <- read.table("CodParasite.txt",head=TRUE)
+# (1)绘制质量 ‘Weight’ 和长度 ‘Length’ 的散点图
+plot(rt$Length,rt$Weight, main = "Plot for Length and Weight")
+# (2)按地域分类,绘制寄生虫强度'Intensity'与其患病率的Cleveland散点图
+dotchart(rt$Intensity, 
+         labels = row.names(rt$Area), cex = 0.7,
+         groups = factor(rt$Area), 
+         main = "Cleveland plot for Intensity Grouped by Area", 
+         xlab = "Intensity", ylab = "Grouped by Area")
 ```
-#### (1)绘制质量 ‘Weight’ 和长度 ‘Length’ 的散点图
-```{r}
-plot(rt$Length,rt$Weight)
-```
-#### (2)按地域分类,绘制寄生虫强度'Intensity'与其患病率的'Cleveland'散点图
-```{r}
-
-```
-
