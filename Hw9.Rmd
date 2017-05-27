@@ -1,0 +1,59 @@
+---
+title: ""
+output: html_document
+---
+<p align="center"><font size="8">2017BIHomework9</font></p>
+<p align="center"><font size="4">Cai Jing</font></p>
+
+
+```{r set-options}
+options(width=100)
+
+# 基于Titanic人员生还与丧生的关联分析
+
+# 导入数据
+data(Titanic)
+str(Titanic) # 发现Tatanic数据集的格式是table，需要转化成dataframe
+summary(Titanic)# 先分析一下Titanic数据的总体情况
+# 一共有2201个案例，4个影响因素
+
+# 将数据转换为apriori算法可以处理的数据形式dataframe
+df <- as.data.frame(Titanic)
+
+# 把Freq中的数字n化为n条相同的case，加入到新的titanic.raw矩阵中
+titanic.raw <- NULL
+for(i in 1:4){
+  titanic.raw <- cbind(titanic.raw, rep(as.character(df[,i]),df$Freq))
+}
+# 把titanic.raw矩阵格式改为数据框
+titanic.raw <- as.data.frame(titanic.raw)
+# 每一行每一列加上属性名称 
+names(titanic.raw) <- names(df)[1:4]
+summary(titanic.raw)# 分析一下转换后的Titanic数据的总体情况
+
+library(Matrix)
+library(arules)#加载 arules程序包
+rules <- apriori(titanic.raw) # 求关联规则
+inspect(rules)
+# 检查后发现显示了很多无关的关联
+# 只想检查其它变量和乘客是否幸存的关系
+rules <- apriori(titanic.raw,
+  parameter = list(minlen=2, supp=0.005, conf=0.8),
+  appearance = list(rhs=c("Survived=No", "Survived=Yes"),
+  default="lhs"),
+  control = list(verbose=F))
+#检查排序后的变量,根据提升度(life)进行降序排序
+inspect(sort(rules,by="lift"))
+
+# 加载包arulesViz， 把关联规则可视化
+library(grid)
+library(arulesViz)
+
+plot(rules)
+plot(rules, method="grouped")
+plot(rules, method="graph")
+plot(rules, method="paracoord", control=list(reorder=TRUE))
+
+
+```
+

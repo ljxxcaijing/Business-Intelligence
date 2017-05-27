@@ -1,0 +1,193 @@
+---
+title: ""
+output: html_document
+---
+<p align="center"><font size="8">2017BIHomework10</font></p>
+<p align="center"><font size="4">Cai Jing</font></p>
+
+```{r setup}
+
+# Set workspace
+setwd("/Users/caihourong/Desktop/Business Intelligence")
+
+# 优化ID3算法
+
+# calcent把两个for循环改成了向量化计算
+# 加入了一个fun函数用于计算概率的熵
+calcent<-function(data){
+  nument<-length(data[,1]) #获取分类数据行数
+  key<-table(as.vector(data[,length(data)]))
+  prob<-key/nument #计算不同类的概率
+  fun <- function(prob){ #fun函数计算概率的熵
+    result<-prob*log(prob,2)
+    return(-result)
+  }
+  ent<-sum(fun(prob))
+  return(ent)
+}
+
+# split把for循环和if判断用subset()查询代替
+split <- function(data,variable,value){
+  data <- data.frame(data)# 确保 data 的格式是数据框
+  return(subset(data,data[,variable] == value,select = -variable)) 
+}
+
+# choose有多层的遍历，所以没有改动
+choose <- function(data){
+  baseent <- calcent(data)
+  numvariable <- length(data[1,])-1
+  featlist <- c()
+  bestinfogain <- 0
+  bestvariable <- 0
+  infogain <- 0
+  uniquevals <- c()
+  for(i in 1:numvariable){
+    featlist <- data[,i] #第i个特征所在列的值 
+    uniquevals <- unique(featlist) #去除相同元素，返回水平列表
+    newent <- 0
+    for(j in 1:length(uniquevals)){
+      subset <- split(data,i,uniquevals[j]) #提取第j个水平对应的行数据 
+      prob <- length(subset[,1])/length(data[,1]) #计算概率
+      newent <- newent+prob*calcent(subset) #计算条件熵
+    }
+    infogain <- baseent - newent #计算信息增益 
+    if(infogain> bestinfogain){ #选取最大信息增益
+      bestinfogain <- infogain
+      bestvariable <- 1
+    }
+  }
+  return(bestvariable)
+}
+```
+```{r}
+# buildtree算法没有改变
+buildtree <- function(data){
+  if(choose(data)==0){
+    print("finish")
+  }else{
+    print(choose(data))
+    level <- unique(data[,choose(data)])
+    if(length(level)==1){
+      print("finish")
+    }else{
+      for(i in 1:length(level)){
+        data1 <- split(data,choose(data),level[i])
+        if(length(data1)==1){ 
+          print("finish")
+        }else{
+          buildtree(data1)
+        }
+      }
+    }
+  }
+}
+
+# Test ID3
+lenses <- read.csv("lenses.csv") 
+buildtree(lenses)
+
+
+# 信息增益率
+# 计算熵值(向量化运算,替代两个 for 循环) 
+# calcent和ID3优化过的calcent一样
+calcent<-function(data){
+  nument<-length(data[,1]) #获取分类数据行数
+  key<-table(as.vector(data[,length(data)]))
+  prob<-key/nument #计算不同类的概率
+  fun <- function(prob){ #fun函数计算概率的熵
+    result<-prob*log(prob,2)
+    return(-result)
+  }
+  ent<-sum(fun(prob))
+  return(ent)
+}
+
+# 划分,该函数的输入为数据集、划分特征、特征的取值
+split <- function(data,variable,value){
+  data <- data.frame(data)# 确保 data 的格式是数据框
+  return(subset(data,data[,variable] == value,select = -variable)) 
+}
+
+# 基于信息增益比的计算 
+choose2 <- function(data,t){
+  baseent <- calcent(data) 
+  bestinfogain_ratio <- 0 # 最大信息增益比 
+  bestvariable <- 0 # 最佳分类变量 
+  infogain <- 0 # 信息增益
+  infogain_ratio <- 0 # 信息增益比 
+  uniquevals <- c() # 属性的水平
+  for(i in 1:(length(data[1,])-1)){
+    uniquevals<-unique(data[,i]) # 返回第 i 列的水平列表 
+    newent<-0 # 初始化熵值
+    ent_i <- 0 # 初始化训练集关于特特征 i 的值的熵
+    for(j in 1:length(uniquevals)){
+      # 计算条件熵 
+      subset <- split(data,i,uniquevals[j]) #提取第j个水平对应的行数据 
+      prob <- length(subset[,1])/length(data[,1]) #计算概率
+      newent <- newent+prob*calcent(subset) #计算条件熵
+      # 计算训练集关于特特征 i 的值的熵 
+      ent_i <- calcent(data[i])
+    }
+    if(ent_i == 0){# 无任何信息增益,该属性下的类别一致
+      break 
+    }
+    infogain <- baseent - newent #计算信息增益 
+    infogain_ratio <- infogain/baseent # 计算信息增益比
+
+    if(is.na(infogain_ratio)){ # 如果信息增益比为空，则赋0
+      infogain_ratio<-0
+    }
+    if(infogain_ratio > t){# 如果信息增益比大于阈值 
+      if(infogain_ratio > bestinfogain_ratio){# 选取最大信息增益      
+        bestinfogain_ratio <- infogain_ratio
+        bestvariable <- i
+      }
+    } 
+  }
+  return(bestvariable) 
+}
+
+# 建立决策树 
+buildtree2<-function(data,t){
+  if(length(data[1,]) == 1 || choose2(data,t) == 0){# 无特征值可选     
+      print("finish")
+  }else{
+    print(colnames(data[choose2(data,t)])) 
+    level<-unique(data[,choose2(data,t)]) 
+    if(length(level) == 1){# 仅剩下一个水平
+      print("finish") 
+    }else{
+      for(i in 1:length(level)){
+        data1<-split(data,choose2(data,t),level[i]) 
+        if(length(data1) <= 1){# 子类中只剩一个观测或者无关测
+          print("finish") 
+        }else{# 迭代 
+          buildtree2(data1,t)
+        } 
+      }
+    }
+  }
+}
+
+
+# 提取数据
+data("iris")
+mydata <- data.frame(iris)
+
+# 数据预处理——等宽分箱
+# 观察数据分布
+summary(mydata)
+
+# 以”Species” 为目标字段，对”Sepal.Length”、”Sepal.Width”、”Petal.Length” 、”Petal.Width” 四个数值型属性离散化。
+library(discretization)
+lisan_result <- mdlp(iris) # 使用mdlp()方法对iris离散化
+names(lisan_result) # ”cutp”为各列的分割点向量。”Disc.data”为离散化后的数据框。
+mydata<-as.data.frame(lisan_result)
+
+# 建立决策树
+buildtree2(mydata,0.005)
+```
+
+
+
+
