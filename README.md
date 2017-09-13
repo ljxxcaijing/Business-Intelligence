@@ -1,2 +1,2 @@
-# Business-Intelligence
-Screenshoot for my BI Homework, mainly R
+# Business-Intellige  
+My BI Homework, mainly R
